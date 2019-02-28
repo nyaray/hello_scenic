@@ -3,10 +3,10 @@ defmodule HelloScenic.Component.MixChannel do
 
   require Logger
 
+  alias HelloScenic.Component
   alias Scenic.Graph
-  #alias Scenic.Primitive.Group
-
   alias Scenic.Components
+  #alias Scenic.Primitives
 
   defmodule State do
     defstruct graph: nil,
@@ -24,11 +24,15 @@ defmodule HelloScenic.Component.MixChannel do
 
   def init(_, opts) do
     id = opts[:id]
-    theme = opts[:styles][:theme]
-    #idx = opts[:styles][:idx] || 1
+    styles = opts[:styles]
 
+    theme = styles[:theme]
+    idx = styles[:idx]
+
+    r_conf = if rem(idx, 2) === 0, do: {:fill, 0.5}, else: {:center, -0.25}
     graph =
       Graph.build(theme: theme)
+      |> Component.Rotary.add_to_graph(r_conf, id: :pan, translate: {12, 20})
       |> Components.slider({{0, 1023}, 738},
         id: :fader,
         rotate: -1.57,
@@ -68,8 +72,8 @@ defmodule HelloScenic.Component.MixChannel do
     {:ok, state}
   end
 
-  def handle_input(msg, _ctx, state) do
-    Logger.debug fn -> "MixChannel ignoring: #{inspect msg}" end
-    {:noreply, state}
-  end
+  #def handle_input(msg, _ctx, state) do
+  #  Logger.debug fn -> "MixChannel ignoring: #{inspect msg}" end
+  #  {:noreply, state}
+  #end
 end

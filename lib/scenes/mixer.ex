@@ -12,14 +12,16 @@ defmodule HelloScenic.Scene.Mixer do
 
     graph =
       Graph.build(font: :roboto, font_size: 20, theme: :light)
-      |> Primitives.group(&init_strips/1, translate: {70, 0})
       |> Primitives.group(&init_selectors/1, translate: {10, 0})
+      |> Primitives.group(&init_strips/1, translate: {105, 0})
+      |> Primitives.group(&init_transport/1, translate: {10, 390})
 
     push_graph(graph)
     {:ok, graph}
   end
 
-  def handle_input(_msg, _ctx, graph) do
+  def handle_input(msg, _ctx, graph) do
+    Logger.debug fn -> "Mixer ignoring #{inspect msg}" end
     {:noreply, graph}
   end
 
@@ -39,6 +41,11 @@ defmodule HelloScenic.Scene.Mixer do
     graph
     |> Component.MixBankPicker.add_to_graph(1, id: :bankpicker, translate: {0, 25})
     |> Component.MixBankCtrl.add_to_graph(nil, id: :basepicker, translate: {0, 160})
+  end
+
+  def init_transport(graph) do
+    graph
+    |> Component.Transport.add_to_graph(nil, id: :transport)
   end
 end
 
