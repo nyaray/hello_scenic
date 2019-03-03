@@ -31,7 +31,7 @@ defmodule HelloScenic.Component.MixBankPicker do
         {"09-16", :bank2},
         {"17-24", :bank3},
         {"25-32", :bank4},
-      ], id: :bankradio, translate: {0, 25}, theme: theme)
+      ], id: :channelbank, translate: {0, 25}, theme: theme)
 
     state = %State{
       id: id,

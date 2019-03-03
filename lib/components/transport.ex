@@ -11,6 +11,15 @@ defmodule HelloScenic.Component.Transport do
   @b_h 65
   @b_margin 3
 
+  @buttons [
+    %{id: :rewind, label: "<<", width: @b_thin_w},
+    %{id: :fast_forward, label: ">>", width: @b_thin_w},
+    %{id: :stop, label: "[   ]", width: @b_wide_w},
+    %{id: :play, label: "|>", width: @b_wide_w, theme: :success},
+    %{id: :record, label: "(   )", width: @b_thin_w, theme: :danger},
+    %{id: :loop, label: "Loop", width: @b_thin_w, theme: :warning}
+  ]
+
   defmodule State do
     defstruct graph: nil,
               id: nil
@@ -22,28 +31,24 @@ defmodule HelloScenic.Component.Transport do
     id = opts[:id]
     theme = opts[:styles][:theme]
 
-    graph =
-      Graph.build(theme: theme)
-      |> Components.button("<<", fill: :black, width: @b_thin_w, height: @b_h)
-      |> Components.button(">>", fill: :black, width: @b_thin_w, height: @b_h,
-        translate: {@b_thin_w + @b_margin, 0})
-      |> Components.button("[   ]", fill: :black, width: @b_wide_w, height: @b_h,
-        translate: {@b_thin_w*2 + @b_margin*2, 0})
-      |> Components.button("|>", fill: :black, width: @b_wide_w, height: @b_h,
-        translate: {@b_thin_w*2 + @b_wide_w + @b_margin*3, 0})
-      |> Components.button("Rec", fill: :black, width: @b_thin_w, height: @b_h,
-        translate: {@b_thin_w*2 + @b_wide_w*2 + @b_margin*4, 0})
-      |> Components.button("Loop", fill: :black, width: @b_thin_w, height: @b_h,
-        translate: {@b_thin_w*3 + @b_wide_w*2 + @b_margin*5, 0})
-
+    graph = init_buttons(Graph.build(theme: theme))
     state = %State{
       id: id,
       graph: graph
     }
-
     push_graph(graph)
 
     {:ok, state}
   end
 
+  defp init_buttons(graph) do
+    {graph, _} =
+      Enum.reduce(@buttons, {graph, 0}, fn spec, {g, l_margin} ->
+        width = spec.width
+        b_opts = [id: spec.id, width: width, height: @b_h, translate: {l_margin, 0}, theme: spec[:theme] || :secondary ]
+        {Components.button(g, spec.label, b_opts), l_margin + width + @b_margin}
+      end)
+
+    graph
+  end
 end

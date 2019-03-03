@@ -6,7 +6,7 @@ defmodule HelloScenic.Component.MixChannel do
   alias HelloScenic.Component
   alias Scenic.Graph
   alias Scenic.Components
-  #alias Scenic.Primitives
+  alias Scenic.Primitives
 
   defmodule State do
     defstruct graph: nil,
@@ -32,34 +32,25 @@ defmodule HelloScenic.Component.MixChannel do
     r_conf = if rem(idx, 2) === 0, do: {:fill, 0.5}, else: {:center, -0.25}
     graph =
       Graph.build(theme: theme)
-      |> Component.Rotary.add_to_graph(r_conf, id: :pan, translate: {12, 20})
+    #|> Primitives.rrect({44, 380, 3}, fill: :green)
+      |> Component.Rotary.add_to_graph(r_conf, id: {id, :pan}, translate: {22, 20})
+      |> Primitives.rrect({15, 300, 3}, fill: :white, stroke: {2, :light_gray},
+        translate: {4, 50})
       |> Components.slider({{0, 1023}, 738},
-        id: :fader,
+        id: {id, :fader},
         rotate: -1.57,
-        translate: {30, 350},
+        translate: {27, 350},
         theme: theme
       )
       |> Components.checkbox({"", false},
-        id: :mute,
-        translate: {0, 370},
-        theme: %{
-          text: :black,
-          background: {0xbb, 0x99, 0x99},
-          border: {0x33, 0x33, 0x33},
-          active: {0x77, 0x77, 0x77},
-          thumb: {0x88, 0x33, 0x33}
-        }
+        id: {id, :mute},
+        translate: {4, 370},
+        theme: :danger
       )
       |> Components.checkbox({"", false},
-        id: :solo,
-        translate: {25, 370},
-        theme: %{
-          text: :black,
-          background: {0x99, 0xbb, 0x99},
-          border: {0x33, 0x33, 0x33},
-          active: {0x77, 0x77, 0x77},
-          thumb: {0x33, 0x88, 0x33}
-        }
+        id: {id, :solo},
+        translate: {29, 370},
+        theme: :success
       )
 
     state = %State{
@@ -72,8 +63,19 @@ defmodule HelloScenic.Component.MixChannel do
     {:ok, state}
   end
 
-  #def handle_input(msg, _ctx, state) do
-  #  Logger.debug fn -> "MixChannel ignoring: #{inspect msg}" end
-  #  {:noreply, state}
+  def handle_input(msg, _ctx, state) do
+    Logger.debug fn -> "MixChannel ignoring: #{inspect msg}" end
+    {:noreply, state}
+  end
+
+  #def filter_event({:value_changed, widget, value}, orig_scene, state) do
+  #  #Logger.debug fn ->
+  #  #  "MixChannel filtering: #{inspect {widget, value}} from #{inspect orig_scene}"
+  #  #end
+
+  #  send_event({state.id, {:value_changed, widget, value}})
+  #  {:stop, state}
   #end
+
+  def filter_event(e, _orig_scene, state), do: {:continue, e, state}
 end

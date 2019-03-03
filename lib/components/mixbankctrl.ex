@@ -22,12 +22,12 @@ defmodule HelloScenic.Component.MixBankCtrl do
 
     graph =
       Graph.build()
-      |> Primitives.group(&(init_bankctrl(&1, "SHIFT", :shiftleft, :shiftright)))
-      |> Primitives.group(&(init_bankctrl(&1, "BANK", :bankleft, :bankright)),
+      |> Primitives.group(&(init_bankctrl(&1, "SHIFT", :bank_shift_left, :bank_shift_right)))
+      |> Primitives.group(&(init_bankctrl(&1, "BANK", :bank_left, :bank_right)),
         translate: {0, 50})
-      |> Components.button("MUTES", fill: :black, translate: {0, 100})
-      |> Components.button("SOLOS", fill: :black, translate: {0, 135})
-      |> Components.button("DIM", fill: :black, translate: {0, 180})
+      |> Components.button("MUTE off", id: :mutes_off, fill: :black, translate: {0, 100}, theme: :secondary)
+      |> Components.button("SOLO off", id: :solos_off, fill: :black, translate: {0, 135}, theme: :secondary)
+      |> Components.button("Dim -20dB", id: :dim_mix, fill: :black, translate: {0, 180}, theme: :secondary)
 
     state = %State{
       id: id,
@@ -47,27 +47,10 @@ defmodule HelloScenic.Component.MixBankCtrl do
     graph
     |> Primitives.text(label, fill: :black)
     |> Components.button("<", id: id1, width: @b_w, height: @b_h,
-      translate: {0, 5})
+      translate: {0, 5}, theme: :secondary)
     |> Components.button(">", id: id2, width: @b_w, height: @b_h,
-      translate: {@b_w + 3, 5})
+      translate: {@b_w + 3, 5}, theme: :secondary)
   end
 
-  #def init_bankshift(graph) do
-  #  graph
-  #  |> Primitives.text("SHIFT", fill: :black)
-  #  |> Components.button("<", id: :shiftleft, width: @b_w, height: @b_h,
-  #    translate: {0, 5})
-  #  |> Components.button(">", id: :shiftright, width: @b_w, height: @b_h,
-  #    translate: {28, 5})
-  #end
-
-  #def init_bankselect(graph) do
-  #  graph
-  #  |> Primitives.text("BANK", fill: :black)
-  #  |> Components.button("<", id: :bankleft, width: @b_w, height: @b_h,
-  #    translate: {0, 5})
-  #  |> Components.button(">", id: :bankright, width: @b_w, height: @b_h,
-  #    translate: {28, 5})
-  #end
 end
 
