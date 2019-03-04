@@ -9,11 +9,18 @@ defmodule HelloScenic.Component.Rotary do
 
   @pi :math.pi()
 
-  @indicator_r 15
-  @indicator_opts [id: :indicator, stroke: {6, :cornflower_blue}]
+  @bbox_w 36
+  @bbox_h @bbox_w + 14
+
+  @outline_s 2
+  @outline_r @bbox_w/2 - @outline_s/2
+
+  @indicator_s 10
+  @indicator_r @indicator_s - 0.5
+  @indicator_opts [id: :indicator, stroke: {@indicator_s, :cornflower_blue}]
   @indicator_resolution_ppv 128
 
-  @label_opts [id: :label, fill: :white, font_size: 14, translate: {-12, 24}]
+  @label_opts [id: :label, fill: :white, font_size: 16, translate: {-14, 24}]
 
   defmodule State do
     defstruct graph: nil,
@@ -51,17 +58,26 @@ defmodule HelloScenic.Component.Rotary do
   def init({mode, value}, opts) do
     id = opts[:id]
     theme = opts[:styles][:theme]
-    #Logger.debug fn -> "Rotary got #{inspect data}" end
 
     {start, stop} = compute_fill(value, mode)
 
     graph =
       Graph.build(theme: theme)
-      |> Primitives.circle(18)
-    #|> Primitives.arc({18, (3/4)*@pi, (3/2 + 3/4)*@pi}, stroke: {2, :light_gray})
-      |> Primitives.arc({15, (3/4)*@pi, (9/4)*@pi}, stroke: {6, :light_gray})
-      |> Primitives.arc({@indicator_r, start, stop}, @indicator_opts)
-      |> Primitives.text(:erlang.float_to_binary(value, decimals: 2), @label_opts)
+      # bounding box
+      |> Primitives.rect({@bbox_w, @bbox_h}, #fill: :red,#{0x33, 0x33, 0x33},
+        translate: {-@bbox_w/2, -@bbox_h/2})
+      # label
+      |> Primitives.text(:erlang.float_to_binary(value, decimals: 2),
+        @label_opts)
+      # outline
+      |> Primitives.arc({@outline_r, (3/4)*@pi, (3/2 + 3/4)*@pi},
+        stroke: {@outline_s, :light_gray})
+      # background fill
+      |> Primitives.arc({@indicator_r, (3/4)*@pi, (9/4)*@pi},
+        stroke: {@indicator_s, :white})
+      # filler
+      |> Primitives.arc({@indicator_r, start, stop},
+        @indicator_opts)
 
     state = %State{
       graph: graph,
@@ -88,12 +104,11 @@ defmodule HelloScenic.Component.Rotary do
       :tracking_value => state.value
     }
 
-    Logger.debug fn -> "captured at #{inspect x}" end
     # TODO: send a z-touch event
     {:noreply, state}
   end
 
-  def handle_input({:cursor_button, {:left, :release, _, {x, _y}}}, ctx, state) do
+  def handle_input({:cursor_button, {:left, :release, _, {_x, _y}}}, ctx, state) do
     ViewPort.release_input(ctx, [:cursor_button, :cursor_pos])
 
     state = %State{state |
@@ -101,7 +116,6 @@ defmodule HelloScenic.Component.Rotary do
       :value => state.tracking_value
     }
 
-    Logger.debug fn -> "released at #{inspect x}" end
     # TODO: send a z-release event
     {:noreply, state}
   end
@@ -111,7 +125,6 @@ defmodule HelloScenic.Component.Rotary do
       x
       |> compute_value(state)
       |> gate_value(state.mode)
-    Logger.debug fn -> "tracked #{inspect x} tracking_value #{state.tracking_value}->#{tracking_value}" end
 
     graph =
       tracking_value
@@ -125,6 +138,7 @@ defmodule HelloScenic.Component.Rotary do
       :tracking_value => tracking_value
     }
 
+    # TODO send a change event
     {:noreply, state}
   end
 
@@ -134,9 +148,8 @@ defmodule HelloScenic.Component.Rotary do
   end
 
   defp compute_value(x, state) do
-    delta = state.tracking_base + x
+    delta = x - state.tracking_base
     normalised_delta = delta / @indicator_resolution_ppv
-    Logger.debug fn -> "compute x:#{inspect x} v:#{inspect state.value} delta:#{inspect delta} n_delta:#{inspect normalised_delta}" end
     state.value + normalised_delta
   end
 

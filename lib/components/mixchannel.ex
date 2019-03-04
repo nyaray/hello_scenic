@@ -35,7 +35,7 @@ defmodule HelloScenic.Component.MixChannel do
     #|> Primitives.rrect({44, 380, 3}, fill: :green)
       |> Component.Rotary.add_to_graph(r_conf, id: {id, :pan}, translate: {22, 20})
       |> Primitives.rrect({15, 300, 3}, fill: :white, stroke: {2, :light_gray},
-        translate: {4, 50})
+        translate: {3, 50})
       |> Components.slider({{0, 1023}, 738},
         id: {id, :fader},
         rotate: -1.57,
