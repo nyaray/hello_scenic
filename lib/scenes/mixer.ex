@@ -7,6 +7,8 @@ defmodule HelloScenic.Scene.Mixer do
   alias Scenic.Graph
   alias Scenic.Primitives
 
+  @pi :math.pi()
+
   def init(_, opts) do
     Logger.debug fn -> "initialising mixer: #{inspect opts}" end
 
@@ -15,6 +17,7 @@ defmodule HelloScenic.Scene.Mixer do
       |> Primitives.group(&init_selectors/1, translate: {10, 0})
       |> Primitives.group(&init_strips/1, translate: {105, 0})
       |> Primitives.group(&init_transport/1, translate: {10, 390})
+      |> Primitives.group(&init_mainmix/1, translate: {650, 20})
 
     push_graph(graph)
     {:ok, graph}
@@ -51,6 +54,17 @@ defmodule HelloScenic.Scene.Mixer do
   def init_transport(graph) do
     graph
     |> Component.Transport.add_to_graph(nil, id: :transport)
+  end
+
+  def init_mainmix(graph) do
+    graph
+    |> Primitives.rect({80, 400}, fill: {0x44, 0x11, 0x11})
+    |> Component.Slider.add_to_graph({{0, 256}, 128}, id: :control_room,
+      width: 50, translate: {15, 0}, mode: :absolute)
+    |> Component.Slider.add_to_graph({{0, 1400}, 738}, id: :mainmix, mode: :relative,
+      rotate: -@pi/2, translate: {22, 330})
+    |> Component.Slider.add_to_graph({[:apple, :banana, :cherrie, :date], :banana}, id: :altmix, mode: :relative,
+      rotate: -@pi/2, translate: {50, 330})
   end
 end
 
